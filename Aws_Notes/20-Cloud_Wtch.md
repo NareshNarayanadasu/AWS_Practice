@@ -115,4 +115,3 @@
 - **Combine Metrics**: Use ServiceLens for end-to-end visibility of distributed applications.  
 - **Automate Responses**: Couple alarms with EventBridge for proactive resolutions.
 
-By following these steps, you'll have a robust monitoring solution for your ALB and EC2 instances, ensuring high availability and performance.
