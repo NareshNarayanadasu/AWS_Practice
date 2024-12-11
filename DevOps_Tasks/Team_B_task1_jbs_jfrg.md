@@ -55,7 +55,7 @@ This will install the latest stable version of Maven from the official Ubuntu pa
 # Clone the Repository
 Clone the repository for the Train Ticket Reservation System:
 ```bash
-git clone https://github.com/NareshNarayanadasu/Train-Ticket-Reservation-System.git
+git clone https://github.com/NareshNarayanadasu/java_ecomm_app.git
 ```
 
 # Installing MySQL
@@ -89,38 +89,103 @@ sudo systemctl status mysql
 
 ![MySQL Installation](./images/SQL_INTSLATION.png)
 
-### **Log in to MySQL**
-Log in to the MySQL server:
+### To create a MySQL database (`ecommerce_store`) and set up a root user with the appropriate credentials, follow these steps:
+
+### **Steps to Set Up MySQL for the `ecommerce_store` Application**
+
+#### 1. **Access MySQL as the Root User**
+Log in to your MySQL server using the root account. Open a terminal and run:
 ```bash
-sudo mysql -u root
+mysql -u root -p
 ```
+Enter the root password when prompted.
 
-### **Create a User**
-Create a new MySQL user:
+---
+
+#### 2. **Create the Database**
+Run the following command to create the database:
 ```sql
-CREATE USER 'root1'@'localhost' IDENTIFIED BY 'Password@123';
-GRANT ALL PRIVILEGES ON `traindb`.* TO 'root1'@'localhost';
+CREATE DATABASE ecommerce_store;
 ```
 
-### **Create a Database**
-Set up the database configuration in `application.properties`:
-```properties
-# MySQL Database Configuration
-spring.datasource.url=jdbc:mysql://localhost:3306/traindb?serverTimezone=UTC
-spring.datasource.username=RESERVATION
-spring.datasource.password=MANAGER
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+---
+
+#### 3. **Create a User (Optional)**  
+If you want to use a dedicated user instead of the root user for security reasons, create a new user:
+```sql
+CREATE USER 'your-username'@'localhost' IDENTIFIED BY 'your-password';
 ```
+
+---
+
+#### 4. **Grant Permissions**
+Grant all privileges on the `ecommerce_store` database to the specified user:
+```sql
+GRANT ALL PRIVILEGES ON ecommerce_store.* TO 'your-username'@'localhost';
+```
+If you’re using the root user, this step isn’t necessary since it already has full privileges.
+
+---
+
+#### 5. **Flush Privileges**
+Apply the changes by flushing privileges:
+```sql
+FLUSH PRIVILEGES;
+```
+
+---
+
+#### 6. **Verify Access**
+Exit the MySQL shell and log in using the new user (if applicable) to verify access:
+```bash
+mysql -u your-username -p
+```
+Then, test access to the database:
+```sql
+USE ecommerce_store;
+```
+
+---
+
+#### 7. **Update the Application Properties**
+Replace the placeholder values in your `application.properties` file with the actual credentials:
+```properties
+# Updated database configuration
+spring.datasource.url=jdbc:mysql://localhost:3306/ecommerce_store
+spring.datasource.username=your-username
+spring.datasource.password=your-password
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# Hibernate configuration
+spring.jpa.hibernate.ddl-auto=update
+
+# Removed older properties for cleanup
+# spring.datasource.name and spring.jpa.properties.hibernate.dialect are omitted
+# If required, add the dialect:
+# spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect (recommended for MySQL 8 or higher)
+
+# JSP configuration (if using JSP)
+spring.mvc.view.suffix=.jsp
+
+# Optional logging levels (uncomment if needed)
+# logging.level.org.springframework=OFF
+# logging.level.root=OFF
+
+```
+
+---
+
+
 
 # Build the Project
-Navigate to the `Train-Ticket-Reservation-System` directory:
+Navigate to the `JavaSpringBoot-E-Commerce` directory:
 ```bash
-cd Train-Ticket-Reservation-System
+cd JavaSpringBoot-E-Commerce
 ```
 
 Run specific Maven goals (clean and install):
 ```bash
-mvn clean install
+mvn clean package
 ```
 
 # Installing JBoss (WildFly) on Ubuntu
@@ -182,12 +247,13 @@ WantedBy=multi-user.target
 ### To copy the target/*.war file to the JBoss default deployment directory, you can use the following command:
 
 ```bash
-sudo cp target/*.war /opt/wildfly-34.0.1.Final/standalone/deployments/
+sudo cp /JavaSpringBoot-E-Commerce/target/*.war /opt/wildfly-34.0.1.Final/standalone/deployments/
 ```
 
 ## Start and Enable WildFly
 Start and enable WildFly:
 ```bash
+sudo systemctl daemon-reload
 sudo systemctl start wildfly
 sudo systemctl enable wildfly
 ```
@@ -206,36 +272,66 @@ http://http://15.152.44.240:8080/
 ```
 
 ![](./images/wildfyhit.png)
-Log in with the default credentials:
-- **Username**: admin
-- **Password**: admin
 
-## Additional Considerations
-- **Customization**: Customize WildFly configuration in `/opt/wildfly/standalone/configuration`.
-- **Security**: Use a strong password and enable SSL/TLS.
-- **Monitoring**: Use tools like JMX or Prometheus for monitoring WildFly.
 
-# Deploying the WAR File
 
-### **Prepare Your WAR File**
-Ensure your application is packaged as a standard WAR file.
-
-### **Identify the Deployment Directory**
-- **Default Directory**: `/opt/wildfly/standalone/deployments`
-- **Custom Directory**: Configure WildFly to monitor other directories or use the management console.
-
-### **Deploy the WAR File**
-
-#### **Method 1: Direct Deployment**
-1. Copy the WAR file to the deployment directory.
-2. Monitor the server log for deployment messages.
-
-#### **Method 2: Using the Management Console**
-1. Access the management console at `http://localhost:9990`.
-2. Log in with the credentials (admin/admin).
-3. Navigate to the "Deployments" section.
-4. Click on "Add," select the WAR file, and deploy it.
 
 ### **Verify Deployment**
 - **Check the Server Log**: Look for deployment messages.
 - **Access the Application**: Use the appropriate URL, e.g., `http://localhost:8080/your-app-name`.
+WildFly deployments are typically located in the `standalone/deployments` directory of the WildFly installation path, as seen in your example:
+
+```bash
+/opt/wildfly-34.0.1.Final/standalone/deployments
+```
+
+---
+
+### **Deployment Files in WildFly**
+1. **`.war` File**:
+   - Your deployed application: `JT-Project-EC-0.0.1-SNAPSHOT.war`.
+   - This is the main web application archive that contains the application's code, libraries, and configuration files.
+
+2. **`.deployed` Marker File**:
+   - `JT-Project-EC-0.0.1-SNAPSHOT.war.deployed` indicates that WildFly has successfully deployed the application.
+   - If the deployment fails, you may see files like `.failed` or `.undeployed` instead.
+
+3. **README.txt**:
+   - A standard file for basic deployment instructions or information about this folder.
+
+---
+
+### **How to Access the Deployed Application**
+1. **Check the WildFly Configuration**:
+   - Ensure the WildFly server is running.
+   - Default port: `8080` (can be customized in `standalone.xml` or `domain.xml`).
+
+2. **Access URL**:
+   - If the server IP is `172.31.33.182` and the app is running on the default port, the URL would be:
+     ```
+     http://172.31.33.182:8080/JT-Project-EC-0.0.1-SNAPSHOT
+     ```
+
+![](./images/working_app.png)
+
+---
+
+### **If You Want to Reconfigure the Deployment Location**
+1. **Modify WildFly Configuration**:
+   - Open the `standalone.xml` file located in:
+     ```
+     /opt/wildfly-34.0.1.Final/standalone/configuration/standalone.xml
+     ```
+   - Look for the `<deployments>` directory path in the configuration and update it if needed:
+     ```xml
+     <deployments path="/custom/path/to/deployments"/>
+     ```
+
+2. **Restart WildFly**:
+   - After making changes, restart the WildFly server:
+     ```bash
+     ./bin/standalone.sh
+     ```
+
+---
+
