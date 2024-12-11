@@ -179,6 +179,12 @@ ExecStop=/opt/wildfly-34.0.1.Final/bin/standalone.sh -S
 WantedBy=multi-user.target
 ```
 
+### To copy the target/*.war file to the JBoss default deployment directory, you can use the following command:
+
+```bash
+sudo cp target/*.war /opt/wildfly-34.0.1.Final/standalone/deployments/
+```
+
 ## Start and Enable WildFly
 Start and enable WildFly:
 ```bash
@@ -196,8 +202,10 @@ sudo systemctl status wildfly
 ## Access the WildFly Management Console
 Open a web browser and navigate to:
 ```
-http://localhost:8080/
+http://http://15.152.44.240:8080/
 ```
+
+![](./images/wildfyhit.png)
 Log in with the default credentials:
 - **Username**: admin
 - **Password**: admin
